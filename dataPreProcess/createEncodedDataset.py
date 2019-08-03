@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from dataPreProcess import createVocab
-from dataPreProcess import createCatego
+from dataPreProcess import encodeWords
 
 
 class EncodedDataset:
@@ -39,9 +38,9 @@ class EncodedDataset:
             # convert label and content to sequence of ids
             id_label = self._catego_dict.category_to_id(label)
             id_words = self._vocab_dict.sentence_to_id(content)
-            id_words = id_words[0: self._encoded_length]          # cut
+            id_words = id_words[0: self._encoded_length]           # cut
             padding_length = self._encoded_length - len(id_words)  # pad
-            id_words = id_words + [self._vocab_dict.unk for i in range(padding_length)]
+            id_words = id_words + [self._vocab_dict.unk for _ in range(padding_length)]
 
             self._input.append(id_words)
             self._output.append(id_label)
@@ -76,7 +75,7 @@ class EncodedDataset:
             self._indicator = 0
             end_indicator = batch_size
         if end_indicator > len(self._input):
-            raise Exception("batch size : %d is too large"% batch_size)
+            raise Exception("batch size : %d is too large" % batch_size)
 
         batch_input = self._input[self._indicator: end_indicator]
         batch_ouput = self._output[self._indicator: end_indicator]
@@ -100,15 +99,15 @@ if __name__ == '__main__':
     num_word_threshold = 10
 
     # create two instance for VocabDict & CategoryDict
-    createVocab_instance = createVocab.VocabDict(vocab_file, num_word_threshold)
-    createCatego_instance = createCatego.CategoryDict(category_file)
+    vocab_instance = encodeWords.VocabDict(vocab_file, num_word_threshold)
+    catego_instance = encodeWords.CategoryDict(category_file)
 
     train_dataset = EncodedDataset(
-        seg_train_file, createVocab_instance, createCatego_instance, encoded_length)
+        seg_train_file, vocab_instance, catego_instance, encoded_length)
     val_dataset = EncodedDataset(
-        seg_val_file, createVocab_instance, createCatego_instance, encoded_length)
+        seg_val_file, vocab_instance, catego_instance, encoded_length)
     test_dataset = EncodedDataset(
-        seg_test_file, createVocab_instance, createCatego_instance, encoded_length)
+        seg_test_file, vocab_instance, catego_instance, encoded_length)
 
     print(train_dataset.next_batch(2), train_dataset.num_samples())
     print(val_dataset.next_batch(2), val_dataset.num_samples())
