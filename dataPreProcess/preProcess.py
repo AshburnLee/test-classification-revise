@@ -2,17 +2,17 @@
 import jieba  # pip install jieba to anaconda !
 
 # input files
-train_file = './cnews_data/cnews.train.txt'
-val_file = './cnews_data/cnews.val.txt'
-test_file = './cnews_data/cnews.test.txt'
+train_file = '../cnews_data/cnews.train.txt'
+val_file = '../cnews_data/cnews.val.txt'
+test_file = '../cnews_data/cnews.test.txt'
 
 # output files
-seg_train_file = './cnews_data/cnews.train.seg.txt'
-seg_val_file = './cnews_data/cnews.val.seg.txt'
-seg_test_file = './cnews_data/cnews.test.seg.txt'
+seg_train_file = '../cnews_data/cnews.train.seg.txt'
+seg_val_file = '../cnews_data/cnews.val.seg.txt'
+seg_test_file = '../cnews_data/cnews.test.seg.txt'
 
-vocab_file = './cnews_data/cnews.vocab.txt'
-category_file = './cnews_data/cnews.category.txt'
+vocab_file = '../cnews_data/cnews.vocab.txt'
+category_file = '../cnews_data/cnews.category.txt'
 
 
 def generate_seg_file(input_file, output_seg_file):
