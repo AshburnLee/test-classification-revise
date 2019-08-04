@@ -1,6 +1,7 @@
 import math
 import tensorflow as tf
 from dataPreProcess import encodeWords
+from dataPreProcess import createEncodedDataset
 import os
 
 
@@ -16,25 +17,6 @@ def set_default_parameters():
         learning_rate=0.001,
         clip_lstm_grads=1.0,
     )
-
-
-hps = set_default_parameters()
-
-seg_train_file = '../cnews_data/cnews.train.seg.txt'
-seg_val_file = '../cnews_data/cnews.val.seg.txt'
-seg_test_file = '../cnews_data/cnews.test.seg.txt'
-
-vocab_file = '../cnews_data/cnews.vocab.txt'
-category_file = '../cnews_data/cnews.category.txt'
-
-output_folder = '../run_text_rnn'
-
-if not os.path.exists(output_folder):
-    os.mkdir(output_folder)
-
-# create two instance for VocabDict & CategoryDict
-vocab_instance = encodeWords.VocabDict(vocab_file, hps.num_word_threshold)
-catego_instance = encodeWords.CategoryDict(category_file)
 
 
 def create_model(hps, vocab_size, classes_size):
@@ -135,9 +117,69 @@ def create_model(hps, vocab_size, classes_size):
             (train_op, global_step))
 
 
+""" Entry area """
+seg_train_file = '../cnews_data/cnews.train.seg.txt'
+seg_val_file = '../cnews_data/cnews.val.seg.txt'
+seg_test_file = '../cnews_data/cnews.test.seg.txt'
+
+vocab_file = '../cnews_data/cnews.vocab.txt'
+category_file = '../cnews_data/cnews.category.txt'
+output_folder = '../run_text_rnn'
+
+if not os.path.exists(output_folder):
+    os.mkdir(output_folder)
+
+hps = set_default_parameters()
+
+# create two instance for VocabDict & CategoryDict
+vocab_instance = encodeWords.VocabDict(vocab_file, hps.num_word_threshold)
+catego_instance = encodeWords.CategoryDict(category_file)
+
+
 # execute this function:
 placeholders, metrics, others = create_model(hps,
                                              vocab_instance.size(),
                                              catego_instance.size())
+inputs, outputs, keep_prob = placeholders
+loss, accuracy = metrics
+train_op, global_step = others
 
 
+init_op = tf.global_variables_initializer()
+train_keep_prob = 0.8
+test_keep_prob = 1.0  # no dropout for test data
+num_train_steps = 1000
+
+# encoded training data set:
+train_dataset = createEncodedDataset.EncodedDataset(
+        seg_train_file, vocab_instance, catego_instance, hps.encoded_length)
+
+# encoded validation data set:
+val_dataset = createEncodedDataset.EncodedDataset(
+    seg_val_file, vocab_instance, catego_instance, hps.encoded_length)
+
+# encoded test data set:
+test_dataset = createEncodedDataset.EncodedDataset(
+        seg_test_file, vocab_instance, catego_instance, hps.encoded_length)
+
+with tf.Session() as sess:
+    # init whole network
+    sess.run(init_op)
+    for i in range(num_train_steps):
+        batch_inputs, batch_label = train_dataset.next_batch(hps.batch_size)
+        # training: global_step+1 when sess.run() is called
+        outputs_val = sess.run([loss, accuracy, train_op, global_step],
+                               feed_dict={
+                                   inputs: batch_inputs,
+                                   outputs: batch_label,
+                                   keep_prob: train_keep_prob
+                               })
+        # get three values from output_val
+        loss_val, accuracy_val, _, global_step_val = outputs_val
+
+        # print for every 100 times
+        if global_step_val % 200 == 0:
+            print("step: %5d, loss: %3.3f, accuracy: %3.5f" %
+                  (global_step_val, loss_val, accuracy_val)
+                  )
+        # in every 1000 steps, do evaluation:
