@@ -34,6 +34,7 @@ class VocabDict:
         return self._unk
 
     def size(self):
+        """ the number of words in training sample """
         return len(self._word_to_id)
 
     def sentence_to_id(self, sentence):
@@ -53,6 +54,10 @@ class CategoryDict:
             idx = len(self._catgo_to_id)
             self._catgo_to_id[category] = idx
 
+    def size(self):
+        """ the number of classes """
+        return len(self._catgo_to_id)
+
     def category_to_id(self, category_name):
         if category_name not in self._catgo_to_id:
             raise Exception("%s is not in our category list " % category_name)
@@ -64,8 +69,8 @@ if __name__ == '__main__':
 
     # test for VocabDict
     vocab_file = '../cnews_data/cnews.vocab.txt'
-    Vocab = VocabDict(vocab_file, 20)
-    print('总词数： %d' % Vocab.size())
+    Vocab = VocabDict(vocab_file, 20)  # pass words with freq<=20
+
     test_word = '你好 呀 ， 参加 比赛 了 吗'
     print(Vocab.sentence_to_id(test_word))
 
@@ -74,5 +79,8 @@ if __name__ == '__main__':
     category_dict = CategoryDict(category_file)
     test_label = '科技'
     print('科技的id： %s' % category_dict.category_to_id(test_label))
+
+    print('总词数： %d' % Vocab.size())
+    print('总类别数： %d' % category_dict.size())
 
 

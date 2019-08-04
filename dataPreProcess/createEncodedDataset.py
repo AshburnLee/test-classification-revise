@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from dataPreProcess import encodeWords
+from dataPreProcess import encodeWords  # from package_name import .py
 
 
 class EncodedDataset:
@@ -97,6 +97,7 @@ if __name__ == '__main__':
     # encoded_length & num_word_threshold
     encoded_length = 50
     num_word_threshold = 10
+    batch_size = 2
 
     # create two instance for VocabDict & CategoryDict
     vocab_instance = encodeWords.VocabDict(vocab_file, num_word_threshold)
@@ -109,6 +110,6 @@ if __name__ == '__main__':
     test_dataset = EncodedDataset(
         seg_test_file, vocab_instance, catego_instance, encoded_length)
 
-    print(train_dataset.next_batch(2), train_dataset.num_samples())
-    print(val_dataset.next_batch(2), val_dataset.num_samples())
-    print(test_dataset.next_batch(2), test_dataset.num_samples())
+    print(train_dataset.next_batch(batch_size), train_dataset.num_samples())
+    print(val_dataset.next_batch(batch_size), val_dataset.num_samples())
+    print(test_dataset.next_batch(batch_size), test_dataset.num_samples())
