@@ -12,5 +12,4 @@ Raw datasets were not uploaded because of the size. So find some from the Intern
   * cnews.vocab.txt
   * cnews.category.txt
 * Run dataPreProcess/createEncodedDataset.py for testing 
-
-After the operations above, all raw data can be encoded with numbers as the input & output for the three models.
+* Run model/LSTM-built-in.py for text classification
